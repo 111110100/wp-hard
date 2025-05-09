@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 
 # Usage: ./check_wp_integrity.sh /path/to/wordpress
 
