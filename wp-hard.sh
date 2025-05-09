@@ -17,10 +17,12 @@ echo "[+] Starting WordPress hardening in: $WP_PATH"
 # Set ownership (assumes www-data; adjust as needed)
 chown -R bitnami:daemon "$WP_PATH"
 chown -R bitnami:daemon "$WP_PATH/wp-content/"
+chown -R daemon:daemon "$WP_PATH/wp-content/upgrades"
 chown -R daemon:daemon "$WP_PATH/wp-content/plugins"
 chown -R daemon:daemon "$WP_PATH/wp-content/uploads"
 chown -R daemon:daemon "$WP_PATH/wp-content/themes"
 [ -d "$WP_PATH/wp-content/ai1wm-backups" ] && chown -R daemon:daemon "$WP_PATH/wp-content/ai1wm-backups"
+[ -d "$WP_PATH/wp-content/upgrade-temp-backup" ] && chown -R daemon:daemon "$WP_PATH/wp-content/upgrade-temp-backup"
 
 # Set directory permissions to 755
 find "$WP_PATH" -type d -exec chmod 755 {} \;
@@ -35,7 +37,7 @@ chmod 600 "$WP_PATH/wp-config.php"
 chown root:root "$WP_PATH/wp-config.php"
 
 # Disable PHP execution in uploads and includes
-for DIR in "$WP_PATH/wp-content/uploads" "$WP_PATH/wp-includes"; do
+for DIR in "$WP_PATH/wp-content/uploads" "$WP_PATH/wp-includes" "$WP_PATH/wp-content/upgrades" "$WP_PATH/wp-content/upgrade-temp-backup"; do
   if [[ -d "$DIR" ]]; then
     cat > "$DIR/.htaccess" <<EOF
 <FilesMatch "\.php$">
