@@ -61,7 +61,7 @@ if ! wp core verify-checksums --quiet --skip-plugins; then
 fi
 
 # Plugin integrity
-PLUGINS=$(wp plugin list --field=name)
+PLUGINS=$(wp plugin list --field=name --skip-plugins)
 
 for plugin in $PLUGINS; do
   if ! wp plugin verify-checksums "$plugin" --quiet --skip-plugins &>/dev/null; then
