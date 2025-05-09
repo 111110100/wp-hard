@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Harden WordPress install
-# Usage: ./harden_wp.sh /path/to/wordpress
+# Usage: ./wp-hard.sh /path/to/wordpress
 
 set -e
 
@@ -15,7 +15,10 @@ fi
 echo "[+] Starting WordPress hardening in: $WP_PATH"
 
 # Set ownership (assumes www-data; adjust as needed)
-chown -R www-data:www-data "$WP_PATH"
+chown -R bitnami:daemon "$WP_PATH"
+chown -R daemon:daemon "$WP_PATH/wp-content/plugins"
+chown -R daemon:daemon "$WP_PATH/wp-content/uploads"
+chown -R daemon:daemon "$WP_PATH/wp-content/themes"
 
 # Set directory permissions to 755
 find "$WP_PATH" -type d -exec chmod 755 {} \;
@@ -40,7 +43,23 @@ EOF
 done
 
 # Disable access to sensitive files
+mv "$WP_PATH/.htaccess" "$WP_PATH/.htaccess.bak"
 cat > "$WP_PATH/.htaccess" <<EOF
+# BEGIN WordPress
+# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+# <IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+
 <FilesMatch "^(wp-config\.php|readme\.html|license\.txt|error_log|.htaccess)$">
   Order allow,deny
   Deny from all
