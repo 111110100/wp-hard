@@ -47,7 +47,7 @@ EOF
 done
 
 # Disable access to sensitive files
-[ -f "$WP_PATH/.htaccess" ] mv "$WP_PATH/.htaccess" "$WP_PATH/.htaccess.bak"
+[ -f "$WP_PATH/.htaccess" ] && mv "$WP_PATH/.htaccess" "$WP_PATH/.htaccess.bak"
 cat > "$WP_PATH/.htaccess" <<EOF
 # BEGIN WordPress
 # The directives (lines) between "BEGIN WordPress" and "END WordPress" are
