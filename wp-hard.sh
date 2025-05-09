@@ -33,7 +33,7 @@ find "$WP_PATH" -type f -exec chmod 644 {} \;
 find "$WP_PATH/wp-content/" -type f -exec chmod 644 {} \;
 
 # Harden wp-config.php
-chmod 600 "$WP_PATH/wp-config.php"
+chmod 640 "$WP_PATH/wp-config.php"
 chown root:root "$WP_PATH/wp-config.php"
 
 # Disable PHP execution in uploads and includes
