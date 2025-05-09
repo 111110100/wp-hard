@@ -16,15 +16,19 @@ echo "[+] Starting WordPress hardening in: $WP_PATH"
 
 # Set ownership (assumes www-data; adjust as needed)
 chown -R bitnami:daemon "$WP_PATH"
+chown -R bitnami:daemon "$WP_PATH/wp-content/"
 chown -R daemon:daemon "$WP_PATH/wp-content/plugins"
 chown -R daemon:daemon "$WP_PATH/wp-content/uploads"
 chown -R daemon:daemon "$WP_PATH/wp-content/themes"
+[ -d "$WP_PATH/wp-content/ai1wm-backups" ] && chown -R daemon:daemon "$WP_PATH/wp-content/ai1wm-backups"
 
 # Set directory permissions to 755
 find "$WP_PATH" -type d -exec chmod 755 {} \;
+find "$WP_PATH/wp-content/" -type d -exec chmod 755 {} \;
 
 # Set file permissions to 644
 find "$WP_PATH" -type f -exec chmod 644 {} \;
+find "$WP_PATH/wp-content/" -type f -exec chmod 644 {} \;
 
 # Harden wp-config.php
 chmod 600 "$WP_PATH/wp-config.php"
@@ -43,7 +47,7 @@ EOF
 done
 
 # Disable access to sensitive files
-mv "$WP_PATH/.htaccess" "$WP_PATH/.htaccess.bak"
+[ -f "$WP_PATH/.htaccess" ] mv "$WP_PATH/.htaccess" "$WP_PATH/.htaccess.bak"
 cat > "$WP_PATH/.htaccess" <<EOF
 # BEGIN WordPress
 # The directives (lines) between "BEGIN WordPress" and "END WordPress" are
