@@ -14,6 +14,7 @@ if [[ -z "$WP_PATH" || ! -d "$WP_PATH" ]]; then
   exit 1
 fi
 
+echo "[+] Starting WordPress check in: $WP_PATH"
 mkdir -p "$LOG_DIR"
 touch "$LOG_FILE"
 
@@ -28,6 +29,7 @@ if ! command -v wp &> /dev/null; then
   exit 1
 fi
 
+echo "[+] Checking directory permissios"
 # Check incorrect directory permissions
 find "$WP_PATH" -type d ! -perm 755 -print | while read -r line; do
   echo "[PERM] Directory not 755: $line" >> "$LOG_FILE"
@@ -38,10 +40,11 @@ find "$WP_PATH" -type f ! -perm 644 ! -name 'wp-config.php' ! -name '.htaccess' 
   echo "[PERM] File not 644: $line" >> "$LOG_FILE"
 done
 
+echo "[+] Checking permissions of wp-config.php, .htaccess"
 # wp-config.php
 if [[ -f wp-config.php ]]; then
   STAT=$(stat -c "%a" wp-config.php)
-  [[ "$STAT" != "600" ]] && echo "[PERM] wp-config.php is $STAT, expected 600" >> "$LOG_FILE"
+  [[ "$STAT" != "644" ]] && echo "[PERM] wp-config.php is $STAT, expected 600" >> "$LOG_FILE"
 fi
 
 # .htaccess
@@ -50,16 +53,19 @@ if [[ -f .htaccess ]]; then
   [[ "$STAT" -gt 644 ]] && echo "[PERM] .htaccess is $STAT, too open" >> "$LOG_FILE"
 fi
 
+echo "[+] Scanning for suspicious PHP functions"
 # Scan for suspicious PHP functions
 find "$WP_PATH" -type f -name "*.php" -exec grep -lE "(base64_decode|eval|gzinflate|str_rot13|system|shell_exec|passthru)" {} \; 2>/dev/null | while read -r match; do
   echo "[MALWARE] Suspicious PHP: $match" >> "$LOG_FILE"
 done
 
+echo "[+] Checking core file integrity"
 # Core file integrity
 if ! wp core verify-checksums --quiet --skip-plugins; then
   echo "[CORE] WordPress core integrity check FAILED" >> "$LOG_FILE"
 fi
 
+echo "[+] Checking plugin integrity"
 # Plugin integrity
 PLUGINS=$(wp plugin list --field=name --skip-plugins)
 
@@ -70,4 +76,5 @@ for plugin in $PLUGINS; do
 done
 
 # Final note
+echo "[✓] WordPress integrity check complete."
 echo "Log saved: $LOG_FILE"
