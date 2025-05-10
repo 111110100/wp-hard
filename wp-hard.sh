@@ -3,6 +3,11 @@
 # Harden WordPress install
 # Usage: ./wp-hard.sh /path/to/wordpress
 
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
 set -e
 
 WP_PATH="$1"
@@ -96,4 +101,3 @@ if ! grep -q "DISALLOW_FILE_EDIT" "$WP_PATH/wp-config.php"; then
 fi
 
 echo "[✓] WordPress hardening complete."
-
