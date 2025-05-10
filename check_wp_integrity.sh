@@ -55,7 +55,7 @@ fi
 
 echo "[+] Scanning for suspicious PHP functions"
 # Scan for suspicious PHP functions
-find "$WP_PATH" -type f -name "*.php" -exec grep -lE "(base64_decode|eval|gzinflate|str_rot13|system|shell_exec|passthru)" {} \; 2>/dev/null | while read -r match; do
+find "$WP_PATH" -type f -name "*.php" -exec grep -lE "\b(base64_decode|eval|gzinflate|str_rot13|system|shell_exec|passthru)\b" {} \; 2>/dev/null | while read -r match; do
   echo "[MALWARE] Suspicious PHP: $match" >> "$LOG_FILE"
 done
 
