@@ -20,6 +20,11 @@ if [[ -z "$WP_PATH" || ! -d "$WP_PATH" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$WP_PATH/wp-config.php" && ! -d "$WP_PATH/wp-content" && ! -d "$WP_PATH/wp-includes" && ! -d "$WP_PATH/wp-admin" ]]; then
+  echo "[ERROR] $WP_PATH does not appear to be a WordPress installation."
+  exit 1
+fi
+
 echo "[+] Starting WordPress check in: $WP_PATH"
 mkdir -p "$LOG_DIR"
 touch "$LOG_FILE"
