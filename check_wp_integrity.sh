@@ -66,9 +66,12 @@ fi
 
 echo "[+] Scanning for suspicious PHP functions"
 # Scan for suspicious PHP functions
-find "$WP_PATH" -type f -name "*.php" -exec grep -lE "\b(base64_decode|eval|gzinflate|str_rot13|system|shell_exec|passthru)\b" {} \; 2>/dev/null | while read -r match; do
-  echo "[MALWARE] Suspicious PHP: $match" >> "$LOG_FILE"
-done
+find "$WP_PATH" -type f -name "*.php" -exec awk '
+/\b(base64_decode|eval|gzinflate|str_rot13|system|shell_exec|passthru)\s*\(/ {
+  if ($0 ~ /^\s*(\/\/|#)/) next
+  if ($0 ~ /\/\*.*\b(base64_decode|eval|gzinflate|str_rot13|system|shell_exec|passthru)\s*\(.*\*\//) next
+  print "[MALWARE] " FILENAME ":" FNR ": " $0
+}' {} + 2>/dev/null >> "$LOG_FILE"
 
 echo "[+] Checking core file integrity"
 # Core file integrity
