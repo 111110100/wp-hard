@@ -46,6 +46,8 @@ find "$WP_PATH/wp-content/" -type f -exec chmod 644 {} \;
 chmod 644 "$WP_PATH/wp-config.php"
 chown root:root "$WP_PATH/wp-config.php"
 
+echo "[+] Ownership and file permission security rules applied."
+
 # Disable PHP execution in uploads and includes
 for DIR in "$WP_PATH/wp-content/uploads" "$WP_PATH/wp-includes" "$WP_PATH/wp-content/upgrade" "$WP_PATH/wp-content/upgrade-temp-backup"; do
   if [[ -d "$DIR" ]]; then
@@ -57,6 +59,8 @@ for DIR in "$WP_PATH/wp-content/uploads" "$WP_PATH/wp-includes" "$WP_PATH/wp-con
 EOF
   fi
 done
+
+echo "[+] Disabled PHP execution in uploads and includes directories."
 
 # Disable access to sensitive files
 [ -f "$WP_PATH/.htaccess" ] && mv "$WP_PATH/.htaccess" "$WP_PATH/.htaccess.bak"
@@ -90,6 +94,12 @@ Options -Indexes
   Deny from all
 </Files>
 
+# Disable access to debug log files
+<FilesMatch debug\.log>
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
 # Optional: disable XML-RPC
 #<Files xmlrpc.php>
 #  Order allow,deny
@@ -104,5 +114,14 @@ if ! grep -q "DISALLOW_FILE_EDIT" "$WP_PATH/wp-config.php"; then
   echo "define('DISALLOW_FILE_EDIT', true);" >> "$WP_PATH/wp-config.php"
   echo "[+] Disabled theme/plugin editing via wp-admin."
 fi
+
+echo "[+] Disabled file editing in wp-config.php."
+
+# Remove WordPress identification
+[ -f "$PATH_PATH/license.txt" ] && rm -f "$WP_PATH/license.txt"
+[ -f "$PATH_PATH/readme.html" ] && rm -f "$WP_PATH/readme.html"
+[ -f "$PATH_PATH/wp-config-sample.php" ] && rm -f "$WP_PATH/wp-config-sample.php"
+
+echo "[+] Removed WordPress identification files."
 
 echo "[✓] WordPress hardening complete."
