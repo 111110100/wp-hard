@@ -54,8 +54,8 @@ done
 echo "[+] Checking permissions of wp-config.php, .htaccess"
 # wp-config.php
 if [[ -f wp-config.php ]]; then
-  STAT=$(stat -c "%a" wp-config.php)
-  [[ "$STAT" != "644" ]] && echo "[PERM] wp-config.php is $STAT, expected 600" >> "$LOG_FILE"
+  STAT=$(stat -L -c "%a" wp-config.php)
+  [[ "$STAT" != "644" ]] && echo "[PERM] wp-config.php is $STAT, expected 644" >> "$LOG_FILE"
 fi
 
 # .htaccess
